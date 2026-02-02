@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>Deshi Voj Chalan - <?= date ?></title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+
+    /* A4 mandatory */
+    @page { size: A4; margin: 14mm 14mm 16mm 14mm; }
+
+    :root{
+      --ink:#111111;
+      --muted:#444444;
+      --line:#cfcfcf;
+      --line-strong:#222222;
+      --panel:#f6f7f9;
+      --panel-2:#f1f2f4;
+    }
+
+    html, body { height: 100%; }
+    body{
+      font-family: 'Hind Siliguri', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin:0; padding:0;
+      color:var(--ink);
+      background:#ffffff;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .no-print { display:none !important; }
+    }
+
+    .wrapper{
+      width:100%;
+      max-width: 190mm;
+      margin:0 auto;
+      min-height: calc(297mm - 30mm);
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
+    /* Header: corporate but still simple */
+    .header{
+      border: 2px solid var(--line-strong);
+      padding: 10px 12px;
+      background: #fff;
+    }
+    .header-top{
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .title{
+      margin:0;
+      font-size: 28px;
+      letter-spacing: 4px;
+      font-weight: 700;
+    }
+    .meta{
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .brand{
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+      display:flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-end;
+    }
+    .brand-left{ line-height: 1.25; }
+    .brand-name{
+      font-size: 16px;
+      font-weight: 700;
+      margin:0;
+    }
+    .brand-sub{
+      font-size: 12px;
+      color: var(--muted);
+      margin:2px 0 0 0;
+    }
+    .doc-badge{
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--line-strong);
+      padding: 4px 8px;
+      background: var(--panel);
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    /* Info box */
+    .info{
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 8px;
+    }
+    .info-table{
+      width:100%;
+      border-collapse: collapse;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+    .info-table td{ padding: 5px 6px; vertical-align: top; }
+    .info-label{
+      width: 90px;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .info-value-strong{
+      font-size: 18px;
+      font-weight: 700;
+      border-bottom: 2px solid var(--line-strong);
+      display:inline-block;
+      padding: 0 2px 2px 2px;
+    }
+
+    /* Main table */
+    
+/* Items table (A4-friendly, full grid borders) */
+.main-table{
+  width:100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  border: 1px solid var(--line-strong);
+  background:#fff;
+}
+.main-table th,
+.main-table td{
+  border: 1px solid var(--line-strong);
+  vertical-align: middle;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+.main-table thead th{
+  background: var(--panel-2);
+  padding: 4px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: none;
+  text-align: center;
+}
+.main-table tbody td{
+  padding: 3px 6px;
+  font-size: 12.8px;
+  font-weight: 600;
+  overflow:hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: left;
+  line-height: 1.15;
+}
+
+/* Ensure 30 rows fit nicely on one page */
+.item-row{ height: 22px; }
+
+.text-center{ text-align:center; }
+    .text-right{ text-align:right; }
+
+    .grand-total-section{
+      display:flex;
+      justify-content:flex-end;
+      margin-top: 4px;
+    }
+    .total-box{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      border: 2px solid var(--line-strong);
+      padding: 8px 12px;
+      font-size: 18px;
+      font-weight: 700;
+      background: var(--panel);
+      border-radius: 8px;
+      min-width: 210px;
+      justify-content: space-between;
+    }
+    .total-label{ color: var(--muted); font-weight: 700; }
+    .total-amount{ color: var(--ink); }
+
+    .system-notice{
+      margin-top: auto;
+      padding-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body onload="window.print()">
+
+  <div class="wrapper">
+
+    <div class="header">
+      <div class="header-top">
+        <h1 class="title">চালান</h1>
+        <div class="meta">
+          <div>তারিখ: <strong><?= date ?></strong></div>
+        </div>
+      </div>
+
+      <div class="brand">
+        <div class="brand-left">
+          <p class="brand-name">দেশি ভোজ</p>
+          <p class="brand-sub">ফিরোজা মারচেন্ট প্লাজা · 01783667744</p>
+        </div>
+        <div class="doc-badge">SYSTEM MANAGER</div>
+      </div>
+    </div>
+
+    <div class="info">
+      <table class="info-table">
+        <tr>
+          <td class="info-label">তারিখঃ</td>
+          <td><span class="info-value-strong"><?= date ?></span></td>
+        </tr>
+        <tr>
+          <td class="info-label">নামঃ</td>
+          <td>দেশি ভোজ</td>
+        </tr>
+        <tr>
+          <td class="info-label">ঠিকানাঃ</td>
+          <td>ফিরোজা মারচেন্ট প্লাজা</td>
+        </tr>
+        <tr>
+          <td class="info-label">মোবাইলঃ</td>
+          <td>01783667744</td>
+        </tr>
+      </table>
+    </div>
+
+    <table class="main-table">
+      <thead>
+        <tr>
+          <th width="10%">ক্রমিক</th>
+          <th width="45%">খাবারের বিবরণ</th>
+          <th width="15%">মূল্য</th>
+          <th width="10%">পরিমান</th>
+          <th width="20%">মোট মূল্য</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?!= itemRows ?>
+      </tbody>
+    </table>
+
+    <div class="grand-total-section">
+      <div class="total-box">
+        <span class="total-label">মোট মূল্য</span>
+        <span class="total-amount">৳ <?= grandTotal ?></span>
+      </div>
+    </div>
+
+    <div class="system-notice">
+      this is a system generated copy
+    </div>
+
+  </div>
+
+</body>
+</html>

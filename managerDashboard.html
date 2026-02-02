@@ -1,0 +1,2731 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <style>
+      /* ==============================
+         ORIGINAL CASHBOOK STYLES (KEEP)
+         ============================== */
+      :root {
+        --bg-black: #000000;
+        --bg-dark: #0d0d0d;
+        --bg-darker: #141414;
+        --bg-grey: #1e1e1e;
+        --border-grey: #333333;
+        --text-main: #e0e0e0;
+        --text-dim: #9a9a9a;
+        --accent: #d4af37;
+        --good: #4caf50;
+        --bad: #dc3545;
+      }
+
+      body {
+        font-family: 'Courier New', Courier, monospace;
+        background-color: var(--bg-black);
+        color: var(--text-main);
+        padding: 0;
+        margin: 0;
+      }
+
+      /* NAVIGATION BAR */
+      .top-nav {
+        background: var(--bg-dark);
+        border-bottom: 1px solid var(--border-grey);
+        padding: 10px 20px;
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .nav-link {
+        color: var(--text-dim);
+        cursor: pointer;
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 1px;
+        padding: 5px 10px;
+      }
+
+      .nav-link:hover, .nav-link.active {
+        color: var(--text-main);
+        border-bottom: 1px solid var(--accent);
+      }
+
+      /* HEADER */
+      .header-container {
+        background: var(--bg-dark);
+        padding: 14px 20px;
+        border: 1px solid var(--border-grey);
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .company-name {
+        margin: 0;
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      .sub-title {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--text-dim);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+      }
+
+      .status-bar {
+        text-align: right;
+        height: 24px;
+        margin-bottom: 6px;
+        padding: 0 20px;
+      }
+
+      #statusMsg {
+        display: none;
+        padding: 4px 10px;
+        background: var(--bg-dark);
+        border: 1px solid var(--border-grey);
+        font-size: 12px;
+      }
+
+      /* TABLES */
+      .entry-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--bg-dark);
+        border: 1px solid var(--border-grey);
+      }
+
+      .entry-table th {
+        background: var(--bg-grey);
+        color: var(--text-dim);
+        padding: 10px;
+        font-size: 12px;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border-grey);
+        text-align: center;
+      }
+
+      .entry-table td {
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--border-grey);
+      }
+
+      .text-right { text-align: right; }
+      .text-center { text-align: center; }
+
+      /* INPUTS */
+      input, select, textarea {
+        width: 100%;
+        padding: 7px;
+        background: var(--bg-darker);
+        border: 1px solid var(--border-grey);
+        color: var(--text-main);
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 13px;
+        box-sizing: border-box;
+      }
+
+      textarea { resize: vertical; }
+
+      input::placeholder { color: var(--text-dim); }
+
+      input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #777;
+        background: var(--bg-black);
+      }
+
+      /* BUTTONS */
+      button {
+        padding: 8px 18px;
+        background: var(--bg-dark);
+        border: 1px solid var(--border-grey);
+        color: var(--text-main);
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 13px;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      button:hover { background: var(--bg-grey); }
+      button:disabled { opacity: .6; cursor: not-allowed; }
+
+      .btn-good {
+        background: var(--bg-dark);
+        border: 1px solid var(--good);
+        color: var(--good);
+      }
+      .btn-good:hover { background: #1b3a1b; }
+
+      .btn-bad {
+        background: var(--bg-dark);
+        border: 1px solid var(--bad);
+        color: var(--bad);
+      }
+      .btn-bad:hover { background: #3a1b1b; }
+
+      /* TABS LOGIC */
+      .tab-content { display: none; }
+      .tab-content.active { display: block; }
+
+      /* CONTROLS */
+      .controls {
+        margin-bottom: 15px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      /* KPI GRID */
+      .kpi {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin: 12px 0;
+      }
+      .kpi > div {
+        background: var(--bg-dark);
+        border: 1px solid var(--border-grey);
+        padding: 10px;
+      }
+      .kpi .label { color: var(--text-dim); font-size: 12px; text-transform: uppercase; }
+      .kpi .val { font-size: 18px; margin-top: 6px; }
+
+      /* SECTION BOX */
+      .box {
+        background: var(--bg-dark);
+        border: 1px solid var(--border-grey);
+        padding: 15px;
+        margin-bottom: 18px;
+      }
+      .box h4 {
+        margin: 0 0 10px 0;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .muted { color: var(--text-dim); font-size: 12px; }
+
+      /* MODAL */
+      .modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.75);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal {
+        width: 520px;
+        max-width: calc(100vw - 40px);
+        background: var(--bg-dark);
+        border: 1px solid var(--border-grey);
+        padding: 16px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.65);
+      }
+      .modal h3 { margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 1px; }
+      .modal .row { display: grid; grid-template-columns: 140px 1fr; gap: 10px; align-items: center; margin-bottom: 10px; }
+      .modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top: 10px; }
+      .modal .line { border-top: 1px solid var(--border-grey); margin: 10px 0; }
+
+      
+      
+/* ==============================
+   EVENT LOGER + PENDING (UI POLISH v4)
+   Terminal-minimal, block-wise, aligned
+   ============================== */
+#tab-eventloger .box,
+#tab-pending .box{
+  background: linear-gradient(180deg, var(--bg-darker), var(--bg-dark));
+  border: 1px solid rgba(212,175,55,0.22);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.6) inset, 0 10px 26px rgba(0,0,0,0.45);
+}
+
+#tab-eventloger .box-head,
+#tab-pending .box-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom: 12px;
+}
+#tab-eventloger .box-head h4,
+#tab-pending .box-head h4{
+  margin:0;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-size: 14px;
+}
+
+#tab-eventloger .muted,
+#tab-pending .muted{
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* Form blocks */
+#tab-eventloger .form-grid{
+  display:grid;
+  grid-template-columns: 1.1fr 1.2fr 1.2fr auto;
+  gap: 12px;
+  align-items:end;
+}
+#tab-eventloger .field label{
+  display:block;
+  margin: 0 0 6px 0;
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+#tab-eventloger .field.actions{
+  display:flex;
+  justify-content:flex-end;
+}
+#tab-eventloger .field.actions button{
+  min-width: 120px;
+}
+
+/* Pending header actions */
+#tab-pending .box-actions{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+#tab-pending .btn-mini{
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+@media (max-width: 980px){
+  #tab-eventloger .form-grid{
+    grid-template-columns: 1fr;
+  }
+  #tab-eventloger .field.actions{
+    justify-content:flex-start;
+  }
+  #tab-eventloger .field.actions button{
+    width: 100%;
+  }
+}
+
+/* Pending tables: tighter + clearer */
+      #tab-pending .entry-table{
+        border: 1px solid rgba(212,175,55,0.18);
+        background: var(--bg-black);
+      }
+      #tab-pending .entry-table th{
+        background: var(--bg-darker);
+        border-bottom: 1px solid rgba(212,175,55,0.22);
+        font-size: 12px;
+        letter-spacing: 0.8px;
+      }
+      #tab-pending .entry-table td{
+        font-size: 12px;
+        padding: 8px 10px;
+        border-bottom: 1px dashed rgba(212,175,55,0.18);
+      }
+      #tab-pending .entry-table tbody tr:hover{
+        background: rgba(212,175,55,0.06);
+      }
+
+      /* Action buttons inside tables */
+      #tab-pending .entry-table button{
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+
+      /* Modal polish (settle popup) */
+      .modal{
+        border-color: rgba(212,175,55,0.25);
+        border-radius: 10px;
+      }
+      .modal h3{
+        font-size: 14px;
+      }
+      .modal .row label{
+        font-size: 12px;
+        letter-spacing: 0.6px;
+      }
+      .modal input{
+        background: var(--bg-black);
+        border-color: rgba(212,175,55,0.25);
+      }
+      .modal input:focus{
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(212,175,55,0.12);
+      }
+
+/* ==============================
+         PRINT STYLES (REPORT PDF)
+         ============================== */
+      @media print {
+        body { background-color: white; color: black; font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.25 !important; }
+        .top-nav, .header-container, .status-bar, .controls, button, #statusMsg, .noPrint { display: none !important; }
+
+        /* Default: hide everything */
+        #tab-inventory, #tab-accounts, #tab-income, #tab-attendance, #tab-payroll { display: none !important; }
+        #tab-reports { display: block !important; }
+
+        /* Only show the chosen report section */
+        #rep-section-monthly, #rep-section-custom, #rep-section-detail, #rep-section-staff, #rep-section-att { display: none !important; }
+        body.print-monthly #rep-section-monthly { display: block !important; }
+        body.print-custom #rep-section-custom { display: block !important; }
+        body.print-detail #rep-section-detail { display: block !important; }
+        body.print-staff #rep-section-staff { display: block !important; }
+        body.print-att #rep-section-att { display: block !important; }
+
+        .entry-table { border: 1px solid #000; color: #000; width: 100%; table-layout: fixed; }
+        .entry-table th { background: #eee !important; color: #000 !important; border: 1px solid #000; }
+        .entry-table td { color: #000 !important; border: 1px solid #000; }
+        .entry-table th, .entry-table td { padding: 6px 8px !important; }
+        .entry-table th, .entry-table td { word-break: break-word; }
+        .kpi { page-break-inside: avoid; }
+        .kpi > div { border: 1px solid #ccc; background: white; }
+        .kpi .label { color: #333; }
+      }
+
+          /* --- UI Visibility Fix (force readable text across tabs) --- */
+      .tab-content, .tab-content * {
+        color: var(--text-main);
+      }
+      .entry-table th, .entry-table td {
+        color: var(--text-main) !important;
+        background: transparent;
+      }
+      input, select, textarea {
+        color: var(--text-main) !important;
+        background: #111 !important;
+        border-color: #2a2a2a !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: var(--text-muted) !important;
+      }
+    </style>
+    <script>
+      // --- Dashboard bootstrap: ensures tab system always works even if later scripts fail ---
+      (function () {
+        function _setActiveTab(id) {
+          try {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+
+            const tab = document.getElementById('tab-' + id);
+            if (tab) tab.classList.add('active');
+
+            // highlight nav link (supports inline onclick or data-tab attribute)
+            const links = Array.from(document.querySelectorAll('.nav-link'));
+            const link = links.find(a => {
+              const dt = a.getAttribute('data-tab');
+              if (dt && dt === id) return true;
+              const oc = a.getAttribute('onclick') || '';
+              return oc.includes("'" + id + "'") || oc.includes('"' + id + '"');
+            });
+            if (link) link.classList.add('active');
+
+            // optional side-effect
+            if (id === 'pending' && typeof window.refreshPendingAll === 'function') {
+              window.refreshPendingAll();
+            }
+          } catch (e) {
+            // swallow: never allow blank dashboard due to bootstrap failure
+          }
+        }
+
+        // Expose globally for inline onclick
+        window.switchTab = window.switchTab || _setActiveTab;
+
+        // Also bind clicks defensively (works even if onclick attributes are removed later)
+        window.addEventListener('click', function (ev) {
+          const a = ev.target && ev.target.closest ? ev.target.closest('.nav-link') : null;
+          if (!a) return;
+
+          const dt = a.getAttribute('data-tab');
+          if (dt) {
+            ev.preventDefault();
+            window.switchTab(dt);
+            return;
+          }
+          // If it uses inline onclick, let it run.
+        }, true);
+
+        // Ensure at least one tab is visible after DOM is ready
+        window.addEventListener('load', function () {
+          if (!document.querySelector('.tab-content.active')) {
+            _setActiveTab('inventory');
+          }
+        });
+      })();
+    </script>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div class="header-container">
+      <h1 class="company-name">DLS Deshi Voj</h1>
+      <h4 class="sub-title">System Manager</h4>
+    </div>
+
+    <div class="status-bar">
+      <span id="statusMsg">STATUS: OK</span>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <div class="top-nav noPrint">
+      <div class="nav-link active" onclick="switchTab('inventory')">Inventory</div>
+      <div class="nav-link" onclick="switchTab('accounts')">Accounts Entry</div>
+      <div class="nav-link" onclick="switchTab('income')">INCOME</div>
+      <div class="nav-link" onclick="switchTab('eventloger')">Event Loger</div>
+      <div class="nav-link" onclick="switchTab('pending')">Pending</div>
+      <div class="nav-link" onclick="switchTab('attendance')">Attendance</div>
+      <div class="nav-link" onclick="switchTab('payroll')">Payroll</div>
+      <div class="nav-link" onclick="switchTab('reports')">Reports</div>
+    </div>
+
+    <div style="padding: 0 20px 20px 20px;">
+
+      <!-- TAB 1: INVENTORY -->
+      <div id="tab-inventory" class="tab-content active">
+
+        <div class="box">
+          <h4>Chalan Order</h4>
+          <div class="controls">
+            <label class="muted">DATE:</label>
+            <input type="date" id="chalDate" style="width: 150px;">
+            <button onclick="reloadChalanItems()">Fill-up</button>
+            <div style="flex:1"></div>
+            <button id="chalSubmitBtn" class="btn-good" onclick="submitChalan()">Submit</button>
+          </div>
+
+          <table class="entry-table">
+            <thead>
+              <tr>
+                <th width="5%">SL</th>
+                <th width="45%">Item</th>
+                <th width="15%" class="text-right">Rate</th>
+                <th width="15%" class="text-center">Quantity</th>
+                <th width="20%" class="text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody id="chalBody"></tbody>
+          </table>
+
+          <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
+            <div class="muted" style="flex:1;">WhatsApp message (copy-paste):</div>
+            <div class="text-right" style="min-width:200px;">
+              <span class="muted">Total</span>
+              <span style="font-size:16px;">&nbsp;৳</span><span id="chalGrandTotal" style="font-size:16px;">0.00</span>
+            </div>
+          </div>
+
+          
+          <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+          <div id="chalanPrintArea" style="display:none; margin-top:15px; text-align: center; border: 1px dashed var(--good); padding: 10px;">
+            <span style="color: var(--good); display: block; margin-bottom: 5px;">✔ চ্যালান সফলভাবে সেভ হয়েছে!</span>
+            <button class="btn-good" onclick="printChalanDocument()" style="width: 100%;">DOWNLOAD / PRINT CHALAN (PDF)</button>
+          </div>
+        </div>
+
+        <div class="box">
+          <h4>Inventory Slip (56mm)</h4>
+          <div class="controls">
+            <label class="muted">DATE:</label>
+            <input type="date" id="invSlipDate" style="width: 150px;">
+            <button onclick="loadInvSlip()">Generate</button>
+            <div style="flex:1"></div>
+            <button onclick="printInvSlip()">Print</button>
+          </div>
+
+          <table class="entry-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th width="15%">In</th>
+                <th width="15%">Out</th>
+                <th width="15%">Remain</th>
+              </tr>
+            </thead>
+            <tbody id="invSlipBody"></tbody>
+          </table>
+
+          <div class="muted" style="margin-top:8px;">Rule: Remain = In - Out (Return). Negative remain is auto-topup to zero.</div>
+        </div>
+
+        <div class="box">
+          <h4>Inventory Report (Range)</h4>
+          <div class="controls">
+            <label class="muted">START:</label>
+            <input type="date" id="invStart" style="width:150px;">
+            <label class="muted">END:</label>
+            <input type="date" id="invEnd" style="width:150px;">
+            <button onclick="runInvRangeReport()">Run</button>
+            <div style="flex:1"></div>
+            <button onclick="printInvRangeReport()">Print</button>
+          </div>
+
+          <div class="kpi">
+            <div><div class="label">In Qty</div><div class="val" id="kpiInvIn">0</div></div>
+            <div><div class="label">Out Qty</div><div class="val" id="kpiInvOut">0</div></div>
+            <div><div class="label">Return Qty</div><div class="val" id="kpiInvRem">0</div></div>
+            <div><div class="label">Days</div><div class="val" id="kpiInvDays">0</div></div>
+          </div>
+
+          <table class="entry-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th width="15%">In</th>
+                <th width="15%">Out</th>
+                <th width="15%">Return</th>
+              </tr>
+            </thead>
+            <tbody id="invRangeBody">
+              <tr><td colspan="4" class="text-center muted">Run a range report</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      </div>
+
+      <!-- TAB 2: ACCOUNTS ENTRY -->
+      <div id="tab-accounts" class="tab-content">
+        <table class="entry-table">
+          <thead>
+            <tr>
+              <th width="5%" class="text-center">SEQ</th>
+              <th width="12%" class="text-center">DATE</th>
+              <th width="15%" class="text-center">HEADERS</th>
+              <th width="33%" class="text-center">DESCRIPTION</th>
+              <th width="20%" class="text-center">HANDOVER</th>
+              <th width="15%" class="text-center">OUT</th>
+            </tr>
+          </thead>
+          <tbody id="cashTableBody"></tbody>
+        </table>
+
+        <div style="margin-top: 20px; display: flex; justify-content: space-between;" class="noPrint">
+          <button onclick="addNewCashRow()">+ Add Entry</button>
+          <div>
+            <button onclick="resetCashForm()">Clear</button>
+            <button id="saveCashBtn" onclick="saveCashData()">Submit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: INCOME -->
+      <div id="tab-income" class="tab-content">
+        <table class="entry-table">
+          <thead>
+            <tr>
+              <th width="5%" class="text-center">SEQ</th>
+              <th width="12%" class="text-center">DATE</th>
+              <th width="15%" class="text-center">HEADERS</th>
+              <th width="38%" class="text-center">DESCRIPTION</th>
+              <th width="15%" class="text-center">CAME BY</th>
+              <th width="15%" class="text-center">IN</th>
+            </tr>
+          </thead>
+        <tbody id="incomeTableBody"></tbody>
+      </table>
+
+     <div style="margin-top: 20px; display: flex; justify-content: space-between;" class="noPrint">
+       <button onclick="addNewIncomeRow()">+ Add Entry</button>
+       <div>
+         <button onclick="resetIncomeForm()">Clear</button>
+         <button id="saveIncomeBtn" onclick="saveIncomeData()">Submit</button>
+         </div>
+       </div>
+     </div>
+
+
+      
+      <!-- TAB 3.5: EVENT LOGER -->
+      <div id="tab-eventloger" class="tab-content">
+
+        <div class="box">
+          <div class="box-head">
+            <h4>Unpaid - (Due)</h4>
+          </div>
+
+          <div class="form-grid noPrint">
+            <div class="field">
+              <label>Date</label>
+              <input type="date" id="evDueDate">
+            </div>
+              <div class="field">
+                <label>Invoice</label>
+                <input type="text" id="evDueInvoice" placeholder="IN-00013216">
+              </div>
+              <div class="field">
+                <label>Customer</label>
+                <input type="text" id="evDueCustomer" placeholder="Guest">
+              </div>
+              <div class="field actions">
+                <button class="btn-good" onclick="evCreateCustomerDue()">Create</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="box-head">
+              <h4>Receiving Debt</h4>
+            </div>
+
+            <div class="form-grid noPrint">
+              <div class="field">
+                <label>Date</label>
+                <input type="date" id="evLoanTakenDate">
+              </div>
+              <div class="field">
+                <label>Lender</label>
+                <input type="text" id="evLoanTakenParty" placeholder="Name">
+              </div>
+              <div class="field">
+                <label>Amount</label>
+                <input type="number" id="evLoanTakenAmt" placeholder="0.00" step="0.01" min="0">
+              </div>
+              <div class="field actions">
+                <button class="btn-good" onclick="evCreateLoanTaken()">Create</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="box-head">
+              <h4>Advancing credit</h4>
+            </div>
+
+            <div class="form-grid noPrint">
+              <div class="field">
+                <label>Date</label>
+                <input type="date" id="evLoanGivenDate">
+              </div>
+              <div class="field">
+                <label>Borrower</label>
+                <input type="text" id="evLoanGivenParty" placeholder="Name">
+              </div>
+              <div class="field">
+                <label>Amount</label>
+                <input type="number" id="evLoanGivenAmt" placeholder="0.00" step="0.01" min="0">
+              </div>
+              <div class="field actions">
+                <button class="btn-good" onclick="evCreateLoanGiven()">Create</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- TAB 3.6: PENDING -->
+      <div id="tab-pending" class="tab-content">
+
+        <div class="box">
+          <div class="box-head">
+            <h4>Unpaid - (Due)</h4>
+              <div class="box-actions noPrint">
+                <button class="btn-mini" onclick="refreshPendingCustomer()">Refresh</button>
+              </div>
+          </div>
+
+          <table class="entry-table">
+            <thead>
+              <tr>
+                <th width="18%">Invoice</th>
+                <th width="22%">Customer</th>
+                <th width="15%" class="text-right">Created</th>
+                <th width="15%" class="text-right">Settled</th>
+                <th width="15%" class="text-right">Remaining</th>
+                <th width="15%" class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="pendingCustBody">
+              <tr><td colspan="6" class="text-center muted">Refresh to load</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="box">
+          <div class="box-head">
+            <h4>Receiving Debt</h4>
+              <div class="box-actions noPrint">
+                <button class="btn-mini" onclick="refreshPendingLoanTaken()">Refresh</button>
+              </div>
+          </div>
+
+          <table class="entry-table">
+            <thead>
+              <tr>
+                <th width="18%">LoanId</th>
+                <th width="22%">Lender</th>
+                <th width="15%" class="text-right">Created</th>
+                <th width="15%" class="text-right">Settled</th>
+                <th width="15%" class="text-right">Remaining</th>
+                <th width="15%" class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="pendingLTBody">
+              <tr><td colspan="6" class="text-center muted">Refresh to load</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="box">
+          <div class="box-head">
+            <h4>Advancing credit</h4>
+              <div class="box-actions noPrint">
+                <button class="btn-mini" onclick="refreshPendingLoanGiven()">Refresh</button>
+              </div>
+          </div>
+
+          <table class="entry-table">
+            <thead>
+              <tr>
+                <th width="18%">LoanId</th>
+                <th width="22%">Borrower</th>
+                <th width="15%" class="text-right">Created</th>
+                <th width="15%" class="text-right">Settled</th>
+                <th width="15%" class="text-right">Remaining</th>
+                <th width="15%" class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="pendingLGBody">
+              <tr><td colspan="6" class="text-center muted">Refresh to load</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- TAB 4: ATTENDANCE -->
+      <div id="tab-attendance" class="tab-content">
+
+        <div class="controls noPrint">
+          <label class="muted">DATE:</label>
+          <input type="date" id="attDate" style="width: 150px;">
+          <button onclick="loadAttendanceList()">Load Day</button>
+          <div style="flex:1"></div>
+          <button class="btn-good" onclick="saveBulkAttendanceData()">Save All</button>
+        </div>
+
+        <table class="entry-table">
+          <thead>
+            <tr>
+              <th width="5%" class="text-center">SEQ</th>
+              <th width="8%" class="text-center">ID</th>
+              <th width="30%" class="text-center">Name</th>
+              <th width="12%" class="text-center">Type</th>
+              <th width="20%" class="text-center">Status</th>
+              <th width="8%" class="text-center">OT Hrs</th>
+              <th width="8%" class="text-center">Fine</th>
+              <th width="9%" class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="attTableBody"></tbody>
+        </table>
+                          
+        <div class="muted" style="margin-top:8px;">
+          Checkbox checked = saved as your selected Status. Unchecked = Absent. Friday loads as checked by default.
+        </div>
+      </div>
+
+      <!-- TAB 5: PAYROLL -->
+      <div id="tab-payroll" class="tab-content">
+
+        <div class="controls noPrint">
+          <label class="muted">MONTH (pick any day):</label>
+          <input type="date" id="payDate" style="width: 150px;" onchange="refreshPayroll()">
+          <div class="muted" id="payMonthLabel"></div>
+        </div>
+
+        <table class="entry-table">
+          <thead>
+            <tr>
+              <th width="10%" class="text-center">ID</th>
+              <th width="28%" class="text-center">Name</th>
+              <th width="15%" class="text-center">Type</th>
+              <th width="17%" class="text-right">Paid</th>
+              <th width="17%" class="text-right">Due</th>
+              <th width="13%" class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="payTableBody"></tbody>
+        </table>
+
+        <div class="muted" style="margin-top:8px;">Paid = Salary + Advance (same month). Due = Gross - Paid.</div>
+      </div>
+
+      <!-- TAB 6: REPORTS -->
+      <div id="tab-reports" class="tab-content">
+
+        <!-- Monthly Report Section -->
+        <div id="rep-section-monthly" class="box">
+          <h4>1. Monthly Report</h4>
+
+          <div class="controls noPrint">
+            <select id="monthSelect" style="width: 220px;"></select>
+            <button onclick="loadMonthlyReport()">Run</button>
+            <button onclick="printReport('monthly')">PDF</button>
+          </div>
+
+          <div class="kpi">
+            <div><div class="label">Income</div><div class="val" id="kpiMonIncome">0.00</div></div>
+            <div><div class="label">Expense</div><div class="val" id="kpiMonExpense">0.00</div></div>
+            <div><div class="label">Net</div><div class="val" id="kpiMonNet">0.00</div></div>
+            <div><div class="label">Tx</div><div class="val" id="kpiMonTx">0</div></div>
+          </div>
+
+          <table class="entry-table" style="margin-top:10px;">
+            <thead>
+              <tr>
+                <th>Header</th>
+                <th class="text-right">In</th>
+                <th class="text-right">Out</th>
+                <th class="text-right">Net</th>
+                <th class="text-right">Tx</th>
+              </tr>
+            </thead>
+            <tbody id="monReportBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Custom Range Report Section -->
+        <div id="rep-section-custom" class="box">
+          <h4>2. Custom Range Report</h4>
+
+          <div class="controls noPrint">
+            <label class="muted">START:</label>
+            <input type="date" id="repStart" style="width:150px">
+            <label class="muted">END:</label>
+            <input type="date" id="repEnd" style="width:150px">
+            <button onclick="loadCustomReport()">Run</button>
+            <button onclick="printReport('custom')">PDF</button>
+          </div>
+
+          <div class="kpi">
+            <div><div class="label">Income</div><div class="val" id="kpiCusIncome">0.00</div></div>
+            <div><div class="label">Expense</div><div class="val" id="kpiCusExpense">0.00</div></div>
+            <div><div class="label">Net</div><div class="val" id="kpiCusNet">0.00</div></div>
+            <div><div class="label">Tx</div><div class="val" id="kpiCusTx">0</div></div>
+          </div>
+
+          <table class="entry-table" style="margin-top:10px;">
+            <thead>
+              <tr>
+                <th>Header</th>
+                <th class="text-right">In</th>
+                <th class="text-right">Out</th>
+                <th class="text-right">Net</th>
+                <th class="text-right">Tx</th>
+              </tr>
+            </thead>
+            <tbody id="cusReportBody"></tbody>
+          </table>
+        </div>
+
+        <!--3 Detailed Header Report Section -->
+        <div id="rep-section-detail" class="box">
+          <h4 style="color: var(--accent);">3. Detailed Header Report</h4>
+          <div class="muted" style="margin-bottom:10px;">View transaction breakdown for a specific Header</div>
+
+          <div class="controls noPrint">
+            <select id="detailHeaderSel" style="width: 220px;">
+              <option value="">Select Header...</option>
+            </select>
+
+            <label class="muted">START:</label>
+            <input type="date" id="detStart" style="width:150px">
+            <label class="muted">END:</label>
+            <input type="date" id="detEnd" style="width:150px">
+
+            <button onclick="loadDetailReport()" style="border-color: var(--accent); color: var(--accent);">View</button>
+            <button onclick="printReport('detail')">PDF</button>
+          </div>
+          <div class="kpi">
+            <div><div class="label">IN</div><div class="val" id="detTotIn">0.00</div></div>
+            <div><div class="label">OUT</div><div class="val" id="detTotOut">0.00</div></div>
+            <div><div class="label">NET</div><div class="val" id="detTotNet">0.00</div></div>
+            <div><div class="label">TX</div><div class="val" id="detTotTx">0</div></div>
+          </div>
+          <table class="entry-table" style="margin-top:10px;">
+            <thead>
+              <tr>
+                <th width="15%">Date</th>
+                <th width="30%">Description</th>
+                <th width="20%">Handover</th>
+                <th width="10%" class="text-right">In</th>
+                <th width="10%" class="text-right">Out</th>
+                <th width="15%" class="text-right">Balance</th>
+              </tr>
+            </thead>
+            <tbody id="detailBody">
+              <tr><td colspan="6" class="text-center muted">Select Header and Date Range</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!--4 Staff Monthly Report Section -->
+        <div id="rep-section-staff" class="box">
+          <h4>4. Staff Monthly Report</h4>
+
+          <div class="controls noPrint">
+            <select id="staffMonthSelect" style="width: 220px;"></select>
+            <button onclick="loadStaffMonthlyReport()">Run</button>
+            <button onclick="printStaffMonthlyReport()">PDF</button>
+          </div>
+
+          <table class="entry-table" style="margin-top:10px;">
+            <thead>
+             <tr>
+               <th>Staff (Ledger Handover To)</th>
+               <th class="text-right">Salary Paid</th>
+               <th class="text-right">Advance Paid</th>
+               <th class="text-right">Total Paid</th>
+             </tr>
+            </thead>
+            <tbody id="staffMonthlyBody">
+             <tr><td colspan="4" class="text-center muted">Select month and Run</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- 5. Attendance Monthly Report -->
+        <div id="rep-section-att" class="box">
+          <h4 style="color: var(--accent);">5. Attendance Monthly Report</h4>
+          <div class="muted" style="margin-bottom:10px;">Monthly summary from Attendance sheet (Present/Absent)</div>
+
+          <div class="controls noPrint">
+            <select id="attMonthSelect" style="width:220px;"></select>
+            <button onclick="loadAttendanceMonthlyReport()" style="border-color: var(--accent); color: var(--accent);">View</button>
+            <button onclick="printReport('att')" style="border-color: var(--accent); color: var(--accent);">PDF</button>
+          </div>
+
+          <div class="kpi" style="margin-top:10px;">
+            <div><div class="label">STAFF</div><div class="val" id="kpiAttStaff">0</div></div>
+            <div><div class="label">DAYS</div><div class="val" id="kpiAttRecords">0</div></div>
+            <div><div class="label">OT HOURS</div><div class="val" id="kpiAttOT">0.00</div></div>
+            <div><div class="label">FINE</div><div class="val" id="kpiAttFine">0.00</div></div>
+          </div>
+
+          <table class="entry-table" style="margin-top:10px;">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th class="text-right">Days</th>
+                <th class="text-right">Present</th>
+                <th class="text-right">Absent</th>
+                <th class="text-right">OT</th>
+                <th class="text-right">Fine</th>
+              </tr>
+            </thead>
+            <tbody id="attReportBody">
+              <tr><td colspan="7" class="text-center muted">Select month and View</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    
+
+     <!-- PAY MODAL -->
+      <div id="payModalBackdrop" class="modal-backdrop noPrint">
+        <div class="modal">
+          <h3>Salary Payment</h3>
+          <div class="muted" id="payModalStaff">STAFF: -</div>
+          <div class="line"></div>
+
+          <div class="row">
+            <div class="muted">Payment Date</div>
+            <input type="date" id="payModalDate">
+          </div>
+          <div class="row">
+            <div class="muted">Amount</div>
+            <input type="number" id="payModalAmt" placeholder="0.00" step="0.01" min="0">
+          </div>
+          <div class="row">
+            <div class="muted">Note</div>
+            <input type="text" id="payModalNote" placeholder="Note">
+          </div>
+
+          <div class="line"></div>
+          <div class="muted" id="payModalDue">Due: 0.00</div>
+
+          <div class="actions">
+            <button onclick="closePayModal()">Cancel</button>
+            <button id="payModalSubmit" class="btn-good" onclick="submitPayModal()">Pay</button>
+          </div>
+        </div>
+      </div>
+      <!-- PENDING SETTLE MODAL -->
+      <div id="pendingModalBackdrop" class="modal-backdrop noPrint">
+        <div class="modal">
+          <h3 id="pendingModalTitle">Settle</h3>
+          <div class="muted" id="pendingModalRef">REF: -</div>
+          <div class="muted" id="pendingModalParty">PARTY: -</div>
+          <div class="line"></div>
+
+          <div class="row">
+            <div class="muted">Settle Date</div>
+            <input type="date" id="pendingModalDate">
+          </div>
+          <div class="row">
+          <div class="muted">Amount</div>
+          <input type="number" id="pendingModalAmt" placeholder="0.00" step="0.01" min="0">
+        </div>
+
+        <div class="line"></div>
+        <div class="muted" id="pendingModalRemaining">Remaining: 0.00</div>
+
+        <div class="actions">
+          <button onclick="closePendingModal()">Cancel</button>
+          <button id="pendingModalSubmitBtn" class="btn-good" onclick="submitPendingModal()">Settle</button>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <script>
+      // ==========================
+      // GLOBAL STATE
+      // ==========================
+      let headerList = [];
+      let staffList = [];
+      let chalanItems = [];
+      let chalanLastQtyMap = {};
+      let payModalState = { staffId: '', staffName: '', due: 0 };
+      let incomeHeaderList = [];
+      let nonIncomeHeaderList = [];
+      let pendingModalState = { type: '', ref: '', party: '', remaining: 0 };
+      let currentChalanHtml = "";
+
+      window.onload = function() {
+        const now = new Date();
+        const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+        const today = local.toISOString().slice(0, 10);
+        const monthStr = local.toISOString().slice(0, 7); // YYYY-MM
+
+        // Defaults
+        document.getElementById('attDate').value = today;
+        document.getElementById('payDate').value = today;
+        document.getElementById('repStart').value = monthStr + "-01";
+        document.getElementById('repEnd').value = today;
+        document.getElementById('detStart').value = monthStr + "-01";
+        document.getElementById('detEnd').value = today;
+
+        // Event Loger defaults
+        const ev1 = document.getElementById('evDueDate');
+        const ev2 = document.getElementById('evLoanTakenDate');
+        const ev3 = document.getElementById('evLoanGivenDate');
+        if (ev1) ev1.value = today;
+        if (ev2) ev2.value = today;
+        if (ev3) ev3.value = today;
+
+        // Inventory defaults (dates from server for Dhaka correctness)
+        google.script.run
+          .withSuccessHandler(res => {
+            document.getElementById('invSlipDate').value = res.today;
+            document.getElementById('chalDate').value = res.tomorrow;
+            document.getElementById('invStart').value = monthStr + "-01";
+            document.getElementById('invEnd').value = res.today;
+            loadInvSlip();
+          })
+          .withFailureHandler(showGsError)
+          .invGetDefaultDatesForUi();
+
+        // Load Headers for Accounts & Reports
+        google.script.run
+          .withSuccessHandler(h => {
+            headerList = h || [];
+            splitHeadersByClassification_();
+            renderCashTable(10); // A CCOUNT 
+            renderIncomeTable(4);     // INCOME tab
+            loadDetailHeaderSelect();
+          })
+          .withFailureHandler(showGsError)
+          .getHeaders();
+
+        // Load Staff
+        google.script.run
+          .withSuccessHandler(s => {
+            staffList = s || [];
+            refreshPayroll();
+            loadAttendanceList();
+          })
+          .withFailureHandler(showGsError)
+          .getStaffList();
+
+        // Load Months for Monthly Report
+        google.script.run
+          .withSuccessHandler(m => {
+            const sel = document.getElementById('monthSelect');
+            sel.innerHTML = '';
+            (m || []).forEach(mm => {
+              const opt = document.createElement('option');
+              const staffSel = document.getElementById('staffMonthSelect');
+              staffSel.innerHTML = '';
+
+               (m || []).forEach(mm => {
+                 const opt1 = document.createElement('option');
+                 opt1.value = JSON.stringify({year:mm.year, month:mm.month});
+                 opt1.textContent = mm.label;
+                 staffSel.appendChild(opt1);
+               });
+
+              if (m && m.length) {
+               staffSel.selectedIndex = m.length - 1;  // latest month default
+              }
+
+              opt.value = JSON.stringify({year:mm.year, month:mm.month});
+              opt.textContent = mm.label;
+              sel.appendChild(opt);
+            });
+            if (m && m.length) {
+              sel.selectedIndex = m.length - 1;
+              loadMonthlyReport();
+            }
+          })
+          .withFailureHandler(showGsError)
+          .getAvailableMonths();
+
+        // Attendance report month list
+        initAttendanceMonths_();
+      };
+
+      function showStatus(msg) {
+        const el = document.getElementById('statusMsg');
+        el.textContent = msg;
+        el.style.display = 'inline-block';
+        setTimeout(() => el.style.display = 'none', 3000);
+      }
+
+      function showGsError(err) {
+        const msg = (err && err.message) ? err.message : String(err || 'Unknown error');
+        alert(msg);
+      }
+
+      function money(n) {
+        return Number(n || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+      }
+
+      function safeText(s) {
+        if (s === null || s === undefined) return '';
+        return String(s);
+      }
+
+      function escapeHtml(s) {
+        return safeText(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); 
+      }
+      function normalizeDateKey_(s) {
+        const v = (s || '').toString().trim();
+        if (!v) return '';
+
+        // Already ISO
+        if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+
+        // MM/DD/YYYY or DD/MM/YYYY
+        const m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (m) {
+          const a = parseInt(m[1], 10);
+          const b = parseInt(m[2], 10);
+          const y = m[3];
+
+         // Decide format deterministically
+         // - if second part > 12 => MM/DD
+         // - if first part > 12 => DD/MM
+         // - else default MM/DD (matches your UI sample like 01/26/2026)
+         let mm, dd;
+         if (b > 12) { mm = a; dd = b; }
+         else if (a > 12) { dd = a; mm = b; }
+         else { mm = a; dd = b; }
+
+         const mm2 = String(mm).padStart(2, '0');
+         const dd2 = String(dd).padStart(2, '0');
+         return `${y}-${mm2}-${dd2}`;
+        } 
+
+      return ''; // unknown format -> force fail early
+    }
+
+  
+  // ==========================
+  const CASH_META_KEY = 'dls_cash_meta_v1'
+
+  function getLastCashMeta_() {
+    try {
+      const raw = localStorage.getItem(CASH_META_KEY);
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      if (!obj || typeof obj !== 'object') return null;
+      const header = safeText(obj.header).trim();
+      const desc = safeText(obj.desc).trim();
+      const handover = safeText(obj.handover).trim();
+      if (!header && !desc && !handover) return null;
+      return { header, desc, handover };
+    } catch (e) {
+      return null;
+    }
+  }
+ 
+  function setLastCashMeta_(meta) {
+    try {
+      const payload = {
+        header: safeText(meta && meta.header).trim(),
+        desc: safeText(meta && meta.desc).trim(),
+        handover: safeText(meta && meta.handover).trim()
+      };
+      localStorage.setItem(CASH_META_KEY, JSON.stringify(payload));
+    } catch (e) {}
+  }
+ 
+  function applyCashMetaToRow_(tr, meta) {
+    if (!tr || !meta) return;
+    const sel = tr.querySelector('.cash-header');
+    const desc = tr.querySelector('.cash-desc');
+    const hand = tr.querySelector('.cash-handover');
+    if (sel && meta.header) sel.value = meta.header; // if option exists, it will select
+    if (desc && meta.desc) desc.value = meta.desc;
+    if (hand && meta.handover) hand.value = meta.handover;
+    // IMPORTANT: do NOT touch amount field (must stay blank)
+  }
+      // ==========================
+      // NAVIGATION
+      // ==========================
+      function switchTab(id) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        document.getElementById('tab-'+id).classList.add('active');
+
+        const btns = document.querySelectorAll('.nav-link');
+        btns.forEach(b => {
+          if(b.getAttribute('onclick').includes(id)) b.classList.add('active');
+        });
+
+        // Auto refresh Pending tab
+        if (id === 'pending') {
+          refreshPendingAll();
+        }
+      }
+      function splitHeadersByClassification_() {
+       const list = headerList || [];
+       incomeHeaderList = list.filter(h => safeText(h.classification) === 'Income');
+       nonIncomeHeaderList = list.filter(h => safeText(h.classification) !== 'Income');
+      }
+
+      // INCOME tab default templates (4 rows only)
+      const INCOME_PRESETS = [
+        { header: "Venue", desc: "Conference Room / Training room Rent", cameBy: "Client" },
+        { header: "Handling charge", desc: "Handling Food for  Ghorooa", cameBy: "Ghorooa" },
+        { header: "Bottle Recycling", desc: "ফাকা বোতল বিক্রির টাকা", cameBy: "ক্রেতা" },
+        { header: "Side income", desc: "হরিশ চন্দ্র বর্মণ", cameBy: "নাই" }
+      ];
+
+
+
+      // ==========================
+      // EVENT LOGER + PENDING (UI)
+      // ==========================
+      function evCreateCustomerDue() {
+        const date = safeText(document.getElementById('evDueDate').value).trim();
+        const invoice = safeText(document.getElementById('evDueInvoice').value).trim();
+        const customer = safeText(document.getElementById('evDueCustomer').value).trim();
+
+        if (!date || !invoice || !customer) return alert('Date + Invoice + Customer required');
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res && res.success) {
+              showStatus(res.message || 'OK');
+              refreshPendingCustomer();
+            } else {
+              alert((res && res.message) ? res.message : 'Failed');
+            }
+          })
+          .withFailureHandler(showGsError)
+          .createCustomerDue(date, invoice, customer);
+      }
+
+      function evCreateLoanTaken() {
+        const date = safeText(document.getElementById('evLoanTakenDate').value).trim();
+        const party = safeText(document.getElementById('evLoanTakenParty').value).trim();
+        const amt = Number(document.getElementById('evLoanTakenAmt').value || 0);
+
+        if (!date || !party) return alert('Date + Lender required');
+        if (!(amt > 0)) return alert('Amount must be > 0');
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res && res.success) {
+              showStatus(res.message || 'OK');
+              refreshPendingLoanTaken();
+            } else {
+              alert((res && res.message) ? res.message : 'Failed');
+            }
+          })
+          .withFailureHandler(showGsError)
+          .createLoanTaken(date, party, amt);
+      }
+
+      function evCreateLoanGiven() {
+        const date = safeText(document.getElementById('evLoanGivenDate').value).trim();
+        const party = safeText(document.getElementById('evLoanGivenParty').value).trim();
+        const amt = Number(document.getElementById('evLoanGivenAmt').value || 0);
+
+        if (!date || !party) return alert('Date + Borrower required');
+        if (!(amt > 0)) return alert('Amount must be > 0');
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res && res.success) {
+              showStatus(res.message || 'OK');
+              refreshPendingLoanGiven();
+            } else {
+              alert((res && res.message) ? res.message : 'Failed');
+            }
+          })
+          .withFailureHandler(showGsError)
+          .createLoanGiven(date, party, amt);
+      }
+
+      function refreshPendingAll() {
+        refreshPendingCustomer();
+        refreshPendingLoanTaken();
+        refreshPendingLoanGiven();
+      }
+
+      function refreshPendingCustomer() {
+        const tbody = document.getElementById('pendingCustBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center muted">Loading...</td></tr>';
+
+        google.script.run
+          .withSuccessHandler(res => {
+            renderPendingTable_('cust', 'pendingCustBody', (res && res.items) ? res.items : []);
+          })
+          .withFailureHandler(showGsError)
+          .listOpenCustomerDues();
+      }
+
+      function refreshPendingLoanTaken() {
+        const tbody = document.getElementById('pendingLTBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center muted">Loading...</td></tr>';
+
+        google.script.run
+          .withSuccessHandler(res => {
+            renderPendingTable_('lt', 'pendingLTBody', (res && res.items) ? res.items : []);
+          })
+          .withFailureHandler(showGsError)
+          .listOpenLoanTaken();
+      }
+
+      function refreshPendingLoanGiven() {
+        const tbody = document.getElementById('pendingLGBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center muted">Loading...</td></tr>';
+
+        google.script.run
+          .withSuccessHandler(res => {
+            renderPendingTable_('lg', 'pendingLGBody', (res && res.items) ? res.items : []);
+          })
+          .withFailureHandler(showGsError)
+          .listOpenLoanGiven();
+      }
+
+      function renderPendingTable_(type, tbodyId, items) {
+        const tbody = document.getElementById(tbodyId);
+        if (!tbody) return;
+
+        const list = Array.isArray(items) ? items : [];
+        if (!list.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center muted">No pending items.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = '';
+        list.forEach(it => {
+          const ref = safeText(it.ref).trim();
+          const party = safeText(it.party).trim();
+          const created = Number(it.created || 0);
+          const settled = Number(it.settled || 0);
+          const remaining = Number(it.remaining || 0);
+
+          const tr = document.createElement('tr');
+
+          const tdRef = document.createElement('td');
+          tdRef.textContent = ref;
+
+          const tdParty = document.createElement('td');
+          tdParty.textContent = party;
+
+          const tdCreated = document.createElement('td');
+          tdCreated.className = 'text-right';
+          tdCreated.textContent = money(created);
+
+          const tdSettled = document.createElement('td');
+          tdSettled.className = 'text-right';
+          tdSettled.textContent = money(settled);
+
+          const tdRem = document.createElement('td');
+          tdRem.className = 'text-right';
+          tdRem.textContent = money(remaining);
+
+          const tdAct = document.createElement('td');
+          tdAct.className = 'text-center';
+          const btn = document.createElement('button');
+          btn.className = 'btn-good';
+          btn.textContent = (type === 'cust') ? 'Due Received' : (type === 'lt') ? 'Paying off Debt' : 'Credit settled';
+          btn.onclick = () => openPendingModal(type, ref, party, remaining);
+          tdAct.appendChild(btn);
+
+          tr.appendChild(tdRef);
+          tr.appendChild(tdParty);
+          tr.appendChild(tdCreated);
+          tr.appendChild(tdSettled);
+          tr.appendChild(tdRem);
+          tr.appendChild(tdAct);
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      function openPendingModal(type, ref, party, remaining) {
+        pendingModalState = { type, ref, party, remaining: Number(remaining || 0) };
+
+        const bd = document.getElementById('pendingModalBackdrop');
+        const title = document.getElementById('pendingModalTitle');
+        const elRef = document.getElementById('pendingModalRef');
+        const elParty = document.getElementById('pendingModalParty');
+        const elRem = document.getElementById('pendingModalRemaining');
+        const elDate = document.getElementById('pendingModalDate');
+        const elAmt = document.getElementById('pendingModalAmt');
+
+        if (title) {
+          title.textContent = (type === 'cust') ? 'Due Received'
+            : (type === 'lt') ? 'Paying off Debt'
+            : 'Credit settled';
+        }
+        
+        const btnSubmit = document.getElementById('pendingModalSubmitBtn');
+        if (btnSubmit) {
+          btnSubmit.textContent = (type === 'cust') ? 'Due Received'
+            : (type === 'lt') ? 'Paying off Debt'
+            : 'Credit settled';
+        }
+if (elRef) elRef.textContent = 'REF: ' + safeText(ref);
+        if (elParty) elParty.textContent = 'PARTY: ' + safeText(party);
+        if (elRem) elRem.textContent = 'Remaining: ' + money(remaining);
+
+        const now = new Date();
+        const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+        const today = local.toISOString().slice(0, 10);
+
+        if (elDate) elDate.value = today;
+        if (elAmt) elAmt.value = '';
+
+        if (bd) bd.style.display = 'flex';
+      }
+
+      function closePendingModal() {
+        const bd = document.getElementById('pendingModalBackdrop');
+        if (bd) bd.style.display = 'none';
+      }
+
+      function submitPendingModal() {
+        const type = pendingModalState.type;
+        const ref = safeText(pendingModalState.ref).trim();
+        const remaining = Number(pendingModalState.remaining || 0);
+
+        const date = safeText(document.getElementById('pendingModalDate').value).trim();
+        const amt = Number(document.getElementById('pendingModalAmt').value || 0);
+
+        if (!date) return alert('Settle date required');
+        if (!(amt > 0)) return alert('Amount must be > 0');
+        if (amt > remaining) return alert('Amount exceeds remaining');
+
+        const onOk = (res) => {
+          if (res && res.success) {
+            showStatus(res.message || 'OK');
+            closePendingModal();
+            if (type === 'cust') refreshPendingCustomer();
+            if (type === 'lt') refreshPendingLoanTaken();
+            if (type === 'lg') refreshPendingLoanGiven();
+          } else {
+            alert((res && res.message) ? res.message : 'Failed');
+          }
+        };
+
+        if (type === 'cust') {
+          google.script.run.withSuccessHandler(onOk).withFailureHandler(showGsError).settleCustomerDue(date, ref, amt);
+        } else if (type === 'lt') {
+          google.script.run.withSuccessHandler(onOk).withFailureHandler(showGsError).settleLoanTaken(date, ref, amt);
+        } else if (type === 'lg') {
+          google.script.run.withSuccessHandler(onOk).withFailureHandler(showGsError).settleLoanGiven(date, ref, amt);
+        } else {
+          alert('Unknown pending type');
+        }
+      }
+
+
+      // ==========================
+      // ACCOUNTS ENTRY (OUT ONLY)
+      // ==========================
+      // Daily fixed presets (Rows 1–8 only). Rows 9–10 stay blank.
+      const DAILY_CASH_PRESETS = [
+        { header: "সালাদ", desc: "শশা লেবু পিয়াজ মরিচ", handover: "All" },
+        { header: "কেরিং", desc: "খাবার আনা বাবদ ভাড়া", handover: "রিমন" },
+        { header: "ঘরোয়া", desc: "গরুর বাকি পরিশোধ", handover: "রশিদ ভাই" },
+        { header: "ঘরোয়া", desc: "খাসির বাকি টাকা পরিশোধ", handover: "সাব্বির কাকা / তামিম কসাই" },
+        { header: "ঘরোয়া", desc: "রাঁধুনির বাকি পরিশোধ", handover: "" },
+        { header: "ঘরোয়া", desc: "লটারি বাবদ পরিশোধ", handover: "তাজ ভাই" },
+        { header: "ঘরোয়া", desc: "নগদ অর্থ প্রদান", handover: "তামিম ভাই" },
+        { header: "ঘরোয়া", desc: "দুধ ওয়ালার বাকি পরিশোধ", handover: "টিটু ভাই" }
+      ];
+ 
+      function renderCashTable(rows) {
+        const tbody = document.getElementById('cashTableBody');
+        tbody.innerHTML = "";
+        const now = new Date();
+        const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+        const today = local.toISOString().slice(0, 10);
+        for(let i=0; i<rows; i++) addCashRow(i+1, today);
+      }
+
+      function addCashRow(seq, dateStr) {
+        const tbody = document.getElementById('cashTableBody');
+        const today = dateStr || new Date().toISOString().slice(0, 10);
+
+        let options = `<option value="">Select...</option>`;
+        nonIncomeHeaderList.forEach(h => options += `<option value="${escapeHtml(h.header)}">${escapeHtml(h.header)}</option>`);
+
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center" style="color:#777">${seq}</td>
+          <td><input type="date" value="${today}"></td>
+          <td><select class="cash-header">${options}</select></td>
+          <td><input type="text" class="cash-desc" placeholder="Details"></td>
+          <td><input type="text" class="cash-handover" placeholder="Name"></td>
+          <td><input type="number" class="cash-out" placeholder="0.00" step="0.01" min="0"></td>
+        `;
+        tbody.appendChild(tr);
+        tbody.appendChild(tr);
+        // Apply fixed daily presets only for rows 1–8
+        const preset = DAILY_CASH_PRESETS[seq - 1];
+        if (preset) {
+          applyCashMetaToRow_(tr, preset);
+        }
+      }
+
+      function addNewCashRow() {
+        addCashRow(document.getElementById('cashTableBody').rows.length + 1);
+      }
+
+      function resetCashForm() {
+        renderCashTable(10);
+      }
+
+      function saveCashData() {
+        const btn = document.getElementById('saveCashBtn');
+        const entries = [];
+
+        const rows = document.querySelectorAll('#cashTableBody tr');
+        for (let i=0; i<rows.length; i++) {
+          const row = rows[i];
+          const date = row.querySelector('input[type="date"]').value;
+          const header = row.querySelector('.cash-header').value;
+          const desc = row.querySelector('.cash-desc').value;
+          const handover = row.querySelector('.cash-handover').value;
+          const outVal = parseFloat(row.querySelector('.cash-out').value) || 0;
+
+          if (outVal > 0) {
+            if (!header || !safeText(desc).trim() || !safeText(handover).trim()) {
+              alert(`Row ${i+1}: Header, Description, and Name are REQUIRED for Submit.`);
+              return;
+            }
+            entries.push({ date, header, description: desc, handoverTo: handover, in: 0, out: outVal });
+          }
+        }
+
+        if (!entries.length) return alert("No valid OUT transactions.");
+
+        btn.disabled = true;
+        btn.textContent = "Processing...";
+
+        google.script.run
+          .withSuccessHandler(res => {
+            btn.disabled = false;
+            btn.textContent = "Submit";
+            if (res && res.success) {
+              showStatus("SAVED");
+              resetCashForm();
+            } else {
+              alert("Failed: " + (res ? res.message : 'Unknown'));
+            }
+          })
+          .withFailureHandler(err => {
+            btn.disabled = false;
+            btn.textContent = "Submit";
+            showGsError(err);
+          })
+          .saveBulkEntries(entries);
+      }
+
+      function renderIncomeTable(rows) {
+        const tbody = document.getElementById('incomeTableBody');
+        tbody.innerHTML = "";
+        const now = new Date();
+        const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+        const today = local.toISOString().slice(0, 10);
+        for (let i = 0; i < rows; i++) addIncomeRow(i + 1, today);
+      }
+
+      function addIncomeRow(seq, dateStr) {
+        const tbody = document.getElementById('incomeTableBody');
+        const today = dateStr || new Date().toISOString().slice(0, 10);
+        
+        let options = `<option value="">Select...</option>`;
+        incomeHeaderList.forEach(h => options += `<option value="${escapeHtml(h.header)}">${escapeHtml(h.header)}</option>`);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center" style="color:#777">${seq}</td>
+          <td><input type="date" value="${today}"></td>
+          <td><select class="income-header">${options}</select></td>
+          <td><input type="text" class="income-desc" placeholder="Details"></td>
+          <td><input type="text" class="income-cameby" placeholder="Name"></td>
+          <td><input type="number" class="income-in" placeholder="0.00" step="0.01" min="0"></td>
+       `;
+       tbody.appendChild(tr);
+
+       // Apply default templates for first 4 rows only
+       const preset = INCOME_PRESETS[seq - 1];
+       if (preset) {
+         tr.querySelector('.income-header').value = preset.header;
+         tr.querySelector('.income-desc').value = preset.desc;
+         tr.querySelector('.income-cameby').value = preset.cameBy;
+        }
+      }
+
+      function addNewIncomeRow() {
+        const tbody = document.getElementById('incomeTableBody');
+        const current = tbody.querySelectorAll('tr').length;
+        // You said max 5 row earlier; keep a hard cap
+        if (current >= 5) return alert('Max 5 rows allowed in INCOME tab.');
+        const now = new Date();
+        const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+        const today = local.toISOString().slice(0, 10);
+        addIncomeRow(current + 1, today);
+      }
+
+      function resetIncomeForm() {
+        renderIncomeTable(4); // ONLY 4 default template rows
+      }
+
+      function saveIncomeData() {
+        const btn = document.getElementById('saveIncomeBtn');
+        const entries = [];
+
+        const rows = document.querySelectorAll('#incomeTableBody tr');
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          const date = row.querySelector('input[type="date"]').value;
+          const header = row.querySelector('.income-header').value;
+          const desc = row.querySelector('.income-desc').value;
+          const cameBy = row.querySelector('.income-cameby').value;
+          const inVal = parseFloat(row.querySelector('.income-in').value) || 0;
+
+          if (inVal > 0) {
+            if (!header || !safeText(desc).trim() || !safeText(cameBy).trim()) {
+              alert(`Row ${i + 1}: Header, Description, and Came by are REQUIRED for Submit.`);
+              return;
+            }
+            entries.push({
+              date: date,
+              header: header,
+              description: desc,
+              handoverTo: cameBy, // Q1=A: map Came by -> Ledger "Handover To"
+              in: inVal,
+              out: 0
+            });
+          }
+        }  
+
+        if (!entries.length) return alert('Nothing to submit. Enter IN amount first.');
+
+        btn.disabled = true;
+        const oldTxt = btn.textContent;
+        btn.textContent = 'Submitting...';
+
+        google.script.run
+          .withSuccessHandler(res => {
+            btn.disabled = false;
+            btn.textContent = oldTxt;
+            if (res && res.success) {
+              showStatus("SAVED");
+              resetIncomeForm();
+            } else {
+              alert("Failed: " + (res ? res.message : 'Unknown'));
+            }
+          })
+          .withFailureHandler(err => {
+            btn.disabled = false;
+            btn.textContent = oldTxt;
+            showGsError(err);
+          })
+          .saveBulkEntries(entries);
+        }
+
+      // ==========================
+      // ATTENDANCE (CHECKBOX)
+      // ==========================
+      function isFriday(dateStr) {
+        // dateStr: YYYY-MM-DD
+        const d = new Date(dateStr + 'T00:00:00');
+        if (isNaN(d)) return false;
+        return d.getDay() === 5; // Friday
+      }
+
+      function loadAttendanceList() {
+        const date = document.getElementById('attDate').value;
+        if(!date) return;
+
+        const tbody = document.getElementById('attTableBody');
+        tbody.innerHTML = '';
+
+        const fri = isFriday(date);
+
+        const options = `
+          <option value="Present">Present</option>
+          <option value="Absent">Absent</option>
+          <option value="Off">Off</option>
+          <option value="OT">Overtime</option>
+        `;
+
+        staffList.forEach((s, index) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="text-center" style="color:#777">${index + 1}</td>
+            <td class="text-center" style="color:#777">${escapeHtml(s.id)}</td>
+            <td class="text-center">${escapeHtml(s.name)}</td>
+            <td class="text-center">${escapeHtml(s.type)}</td>
+            <td class="text-center"><select class="att-status">${options}</select></td>
+            <td class="text-center"><input type="number" class="att-ot" value="0" placeholder="0" min="0" step="1"></td>
+            <td class="text-center"><input type="number" class="att-fine" value="0" placeholder="0" min="0" step="1"></td>
+            <td class="text-center"><input type="checkbox" class="att-check" checked></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function saveBulkAttendanceData() {
+        const date = document.getElementById('attDate').value;
+        if (!date) return;
+
+        const records = [];
+        document.querySelectorAll('#attTableBody tr').forEach(row => {
+          const id = safeText(row.cells[1].textContent).trim();
+          const checked = row.querySelector('.att-check').checked;
+          const statusSel = row.querySelector('.att-status').value;
+          const otVal = Number(row.querySelector('.att-ot').value) || 0;
+          const fineVal = Number(row.querySelector('.att-fine').value) || 0;
+
+          const status = checked ? statusSel : 'Absent';
+          const ot = checked ? otVal : 0;
+          const fine = checked ? fineVal : 0;
+          records.push({ staffId: id, date, status, otHours: ot, fine });
+        });
+
+        if(records.length === 0) return;
+
+        const btn = document.querySelector('#tab-attendance .btn-good');
+        const originalText = btn.textContent;
+        btn.textContent = "Saving...";
+        btn.disabled = true;
+
+        google.script.run
+          .withSuccessHandler(res => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+            if(res && res.success) {
+              showStatus("ATTENDANCE SAVED");
+              loadAttendanceList();
+            } else {
+              alert((res && res.message) ? res.message : 'Failed');
+            }
+          })
+          .withFailureHandler(err => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+            showGsError(err);
+          })
+          .saveBulkAttendance(records);
+      }
+
+      // ==========================
+      // PAYROLL (MONTHLY)
+      // ==========================
+      function monthLabelFromDate(dateStr) {
+        const d = new Date(dateStr + 'T00:00:00');
+        if (isNaN(d)) return '';
+        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        return months[d.getMonth()] + ' ' + d.getFullYear();
+      }
+
+      function refreshPayroll() {
+        const date = document.getElementById('payDate').value;
+        if(!date) return;
+        document.getElementById('payMonthLabel').textContent = monthLabelFromDate(date);
+
+        google.script.run
+          .withSuccessHandler(res => {
+            const tbody = document.getElementById('payTableBody');
+            tbody.innerHTML = '';
+
+            const data = (res && res.data) ? res.data : [];
+            data.forEach(s => {
+              const paidTotal = (Number(s.paid) || 0) + (Number(s.advance) || 0);
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td class="text-center" style="color:#777">${escapeHtml(s.id)}</td>
+                <td class="text-center">${escapeHtml(s.name)}</td>
+                <td class="text-center">${escapeHtml(s.type)}</td>
+                <td class="text-right" style="color:${paidTotal > 0 ? 'var(--good)' : 'var(--text-dim)'}">${money(paidTotal)}</td>
+                <td class="text-right" style="color:${s.balanceDue > 0 ? 'var(--bad)' : 'var(--text-dim)'}">${money(s.balanceDue)}</td>
+                <td class="text-center"><button class="btn-good" onclick="openPayModal('${escapeJs(s.id)}','${escapeJs(s.name)}',${Number(s.balanceDue)||0})">Pay</button></td>
+              `;
+              tbody.appendChild(tr);
+            });
+          })
+          .withFailureHandler(showGsError)
+          .getPayrollDashboardViewData(date, 'monthly');
+      }
+
+      function escapeJs(s) {
+        return safeText(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\"/g,'\\\"');
+      }
+
+      function openPayModal(id, name, due) {
+        payModalState = { staffId: id, staffName: name, due: Number(due) || 0 };
+        document.getElementById('payModalStaff').textContent = 'STAFF: ' + name + ' (ID: ' + id + ')';
+        document.getElementById('payModalDue').textContent = 'Due: ' + money(payModalState.due);
+
+        // Default payment date = today
+        const now = new Date();
+        const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+        const today = local.toISOString().slice(0,10);
+        document.getElementById('payModalDate').value = today;
+
+        document.getElementById('payModalAmt').value = payModalState.due ? payModalState.due.toFixed(2) : '';
+        document.getElementById('payModalNote').value = 'Salary Pay (Dashboard)';
+
+        document.getElementById('payModalBackdrop').style.display = 'flex';
+      }
+
+      function closePayModal() {
+        document.getElementById('payModalBackdrop').style.display = 'none';
+      }
+
+      function submitPayModal() {
+        const btn = document.getElementById('payModalSubmit');
+        const date = document.getElementById('payModalDate').value;
+        const amt = Number(document.getElementById('payModalAmt').value);
+        const note = document.getElementById('payModalNote').value;
+
+        if (!date) return alert('Payment date required.');
+        if (!Number.isFinite(amt) || amt <= 0) return alert('Valid amount required.');
+
+        btn.disabled = true;
+        btn.textContent = 'Paying...';
+
+        google.script.run
+          .withSuccessHandler(res => {
+            btn.disabled = false;
+            btn.textContent = 'Pay';
+            if (res && res.success) {
+              showStatus('PAID');
+              closePayModal();
+              refreshPayroll();
+            } else {
+              alert((res && res.message) ? res.message : 'Payment failed');
+            }
+          })
+          .withFailureHandler(err => {
+            btn.disabled = false;
+            btn.textContent = 'Pay';
+            showGsError(err);
+          })
+          .processManualStaffPayment({ staffId: payModalState.staffId, date, amount: amt, note: note });
+      }
+
+      // Close modal on backdrop click
+      document.addEventListener('click', (e) => {
+        const bd = document.getElementById('payModalBackdrop');
+        if (e.target === bd) closePayModal();
+      });
+
+      // ==========================
+      // REPORTS
+      // ==========================
+      function loadDetailHeaderSelect() {
+        const sel = document.getElementById('detailHeaderSel');
+        sel.innerHTML = '<option value="">Select Header...</option>';
+        headerList.forEach(h => {
+          const opt = document.createElement('option');
+          opt.value = h.header;
+          opt.textContent = h.header;
+          sel.appendChild(opt);
+        });
+      }
+
+      function loadDetailReport() {
+        const headerRaw = document.getElementById('detailHeaderSel').value;
+        const startRaw = document.getElementById('detStart').value;
+        const endRaw = document.getElementById('detEnd').value;
+
+        const header = (headerRaw || '').toString().trim();
+        const start = normalizeDateKey_(startRaw);
+        const end = normalizeDateKey_(endRaw);
+
+        // Reset totals every run
+        const elIn = document.getElementById('detTotIn');
+        const elOut = document.getElementById('detTotOut');
+        const elNet = document.getElementById('detTotNet');
+        const elTx = document.getElementById('detTotTx');
+
+
+        if (elIn) elIn.textContent = money(0);
+        if (elOut) elOut.textContent = money(0);
+        if (elNet) elNet.textContent = money(0);
+        if (elTx) elTx.textContent = '0';
+
+        if (!header || !start || !end) return alert('Select Header + Date Range');
+
+        google.script.run
+          .withSuccessHandler(res => {
+            const tbody = document.getElementById('detailBody');
+            if (tbody) tbody.innerHTML = '';
+
+            const tx = (res && (res.transactions || res.rows)) ? (res.transactions || res.rows) : [];
+
+            if (!tx.length) {
+              if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center muted">No transactions found for this header.</td></tr>';
+              }
+              return;
+            }
+
+            let sumIn = 0, sumOut = 0;
+
+            tx.forEach(t => {
+              const inAmt = Number(t.in || 0);
+              const outAmt = Number(t.out || 0);
+              sumIn += inAmt;
+              sumOut += outAmt;
+
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td>${escapeHtml(t.dateStr || '')}</td>
+                <td>${escapeHtml(t.description || '')}</td>
+                <td>${escapeHtml(t.handover || '')}</td>
+                <td class="text-right" style="color:var(--good)">${inAmt > 0 ? money(inAmt) : '-'}</td>
+                <td class="text-right" style="color:var(--bad)">${outAmt > 0 ? money(outAmt) : '-'}</td>
+                <td class="text-right">${money(Number(t.balance || 0))}</td>
+              `;
+              if (tbody) tbody.appendChild(tr);
+            });
+
+            if (elIn) elIn.textContent = money(sumIn);
+            if (elOut) elOut.textContent = money(sumOut);
+            if (elNet) elNet.textContent = money(sumIn - sumOut);
+            if (elTx) elTx.textContent = String(tx.length);
+          })
+          .withFailureHandler(showGsError)
+          .getHeaderDetailReport(header, start, end);
+      }
+     
+      function initAttendanceMonths_() {
+        const sel = document.getElementById('attMonthSelect');
+        if (!sel) return;
+
+        google.script.run
+          .withSuccessHandler(months => {
+            sel.innerHTML = '';
+            (months || []).forEach(m => {
+              const opt = document.createElement('option');
+             opt.value = JSON.stringify({ year: m.year, month: m.month });
+             opt.textContent = m.label; // e.g. 2026-01
+             sel.appendChild(opt);
+           });
+
+           if (months && months.length) {
+              sel.selectedIndex = months.length - 1; // latest  month
+            }
+          })
+          .withFailureHandler(showGsError)
+          .getAttendanceAvailableMonths();
+      }
+      
+      function loadAttendanceMonthlyReport() {
+        const sel = document.getElementById('attMonthSelect');
+        if (!sel || !sel.value) return alert('Select month first.');
+
+        let ym;
+        try { ym = JSON.parse(sel.value); } catch (e) { return alert('Month parse error.'); }
+
+        const body = document.getElementById('attReportBody');
+        if (body) body.innerHTML = '';
+
+        // KPI reset
+        const kStaff = document.getElementById('kpiAttStaff');
+        const kRec   = document.getElementById('kpiAttRecords'); // labeled DAYS in UI
+        const kOT    = document.getElementById('kpiAttOT');
+        const kFine  = document.getElementById('kpiAttFine');
+
+        const fm = (typeof fmtMoney === 'function') ? fmtMoney : (typeof money === 'function' ? money : (n => String(n)));
+
+        if (kStaff) kStaff.textContent = '0';
+        if (kRec)   kRec.textContent = '0';
+        if (kOT)    kOT.textContent = fm(0);
+        if (kFine)  kFine.textContent = fm(0);
+
+        google.script.run
+          .withSuccessHandler(res => {
+            // Support BOTH response shapes:
+            // 1) New: { totals:{staffCount,recordCount,otHours,fine}, byStaff:[{id,name,present,absent,otHours,fine}] }
+            // 2) Old: { kpi:{staff,records,ot,fine}, rows:[{id,name,present,absent,ot,fine}] }
+            const rows = (res && (res.byStaff || res.rows)) ? (res.byStaff || res.rows) : [];
+            const t = (res && (res.totals || res.kpi)) ? (res.totals || res.kpi) : {};
+
+            const staffCount = Number(t.staffCount ?? t.staff ?? 0);
+            const recordCount = Number(t.recordCount ?? t.records ?? 0);
+            const otTotal = Number(t.otHours ?? t.ot ?? 0);
+            const fineTotal = Number(t.fine ?? 0);
+
+            if (kStaff) kStaff.textContent = String(staffCount || 0);
+            if (kRec)   kRec.textContent = String(recordCount || 0);
+            if (kOT)    kOT.textContent = fm(otTotal);
+            if (kFine)  kFine.textContent = fm(fineTotal);
+
+            if (!body) return;
+
+            if (!rows.length) {
+              body.innerHTML = '<tr><td colspan="7" class="text-center muted">No data for this month.</td></tr>';
+              return;
+            }
+
+            let totDays = 0, totP = 0, totA = 0, totOT = 0, totFine = 0;
+
+            rows.forEach(r => {
+              const p = Number(r.present || 0);
+              const a = Number(r.absent || 0);
+              const days = Number(r.days || (p + a));
+              const ot = Number(r.otHours ?? r.ot ?? 0);
+              const fine = Number(r.fine || 0);
+
+              totDays += days; totP += p; totA += a; totOT += ot; totFine += fine;
+
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td>${escapeHtml(r.id || '')}</td>
+                <td>${escapeHtml(r.name || '')}</td>
+                <td class="text-right">${days}</td>
+                <td class="text-right">${p}</td>
+                <td class="text-right">${a}</td>
+                <td class="text-right">${fm(ot)}</td>
+                <td class="text-right">${fm(fine)}</td>
+              `;
+              body.appendChild(tr);
+            });
+
+            const trT = document.createElement('tr');
+            trT.innerHTML = `
+              <td></td>
+              <td class="text-right"><b>TOTAL</b></td>
+              <td class="text-right"><b>${totDays}</b></td>
+              <td class="text-right"><b>${totP}</b></td>
+              <td class="text-right"><b>${totA}</b></td>
+              <td class="text-right"><b>${fm(totOT)}</b></td>
+              <td class="text-right"><b>${fm(totFine)}</b></td>
+            `;
+            body.appendChild(trT);
+          })
+          .withFailureHandler(showGsError)
+          .getAttendanceMonthlyReport(ym.year, ym.month);
+      }
+        
+      function loadMonthlyReport() {
+        const sel = document.getElementById('monthSelect');
+        if(!sel.value) return;
+        const m = JSON.parse(sel.value);
+
+        google.script.run
+        .withSuccessHandler(res => {
+          document.getElementById('kpiMonIncome').textContent = money(res.totals.income);
+          document.getElementById('kpiMonExpense').textContent = money(res.totals.expense);
+          document.getElementById('kpiMonNet').textContent = money(res.totals.net);
+          document.getElementById('kpiMonTx').textContent = res.totals.txCount;
+
+          const tb = document.getElementById('monReportBody');
+           tb.innerHTML = '';
+           (res.byHeader || []).forEach(r => {
+              tb.innerHTML += `<tr>
+                <td>${escapeHtml(r.header)}</td>
+                <td class="text-right">${money(r.income)}</td>
+                <td class="text-right">${money(r.expense)}</td>
+                <td class="text-right">${money(r.net)}</td>
+                <td class="text-right">${r.txCount}</td>
+              </tr>`;
+            });
+          })
+          .withFailureHandler(showGsError)
+          .getMonthlyReportData(m.year, m.month);
+      }
+
+      function loadCustomReport() {
+        const s = document.getElementById('repStart').value;
+        const e = document.getElementById('repEnd').value;
+        if(!s || !e) return alert('Select Dates');
+
+        google.script.run
+          .withSuccessHandler(res => {
+            document.getElementById('kpiCusIncome').textContent = money(res.totals.income);
+            document.getElementById('kpiCusExpense').textContent = money(res.totals.expense);
+            document.getElementById('kpiCusNet').textContent = money(res.totals.net);
+            document.getElementById('kpiCusTx').textContent = res.totals.txCount;
+
+            const tb = document.getElementById('cusReportBody');
+            tb.innerHTML = '';
+            (res.byHeader || []).forEach(r => {
+              tb.innerHTML += `<tr>
+                <td>${escapeHtml(r.header)}</td>
+                <td class="text-right">${money(r.income)}</td>
+                <td class="text-right">${money(r.expense)}</td>
+                <td class="text-right">${money(r.net)}</td>
+                <td class="text-right">${r.txCount}</td>
+              </tr>`;
+            });
+          })
+          .withFailureHandler(showGsError)
+          .getCustomReportData(s, e);
+      }
+      
+      function fmtMoney_(n) {
+        const x = Number(n || 0);
+        return x.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+
+      function loadStaffMonthlyReport() {
+        const sel = document.getElementById('staffMonthSelect');
+        if (!sel || !sel.value) return alert('Select month first.');
+
+        let ym;
+        try { ym = JSON.parse(sel.value); } catch(e) { return alert('Month parse error.'); }
+        const year = ym.year, month = ym.month;
+
+        google.script.run
+         .withSuccessHandler(res => {
+           const body = document.getElementById('staffMonthlyBody');
+           const rows = (res && res.data) ? res.data : [];
+
+           if (!rows.length) {
+             body.innerHTML = `<tr><td colspan="4" class="text-center muted">No data for ${escapeHtml(res && res.period ? res.period : (year + '-' + String(month).padStart(2,'0')))}</td></tr>`;
+             return;
+            }
+
+            let totalSalary = 0, totalAdvance = 0, totalPaid = 0;
+
+            body.innerHTML = '';
+            rows.forEach(r => {
+              const name = safeText(r.name);
+              const paid = Number(r.paid || 0);
+              const adv  = Number(r.advance || 0);
+              const tot  = Number(r.total || 0);
+
+              totalSalary += paid;
+              totalAdvance += adv;
+              totalPaid += tot;
+
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+               <td>${escapeHtml(name)}</td>
+               <td class="text-right">${fmtMoney_(paid)}</td>
+               <td class="text-right">${fmtMoney_(adv)}</td>
+               <td class="text-right">${fmtMoney_(tot)}</td>
+             `;
+             body.appendChild(tr);
+           });
+
+           // Totals row
+           const trT = document.createElement('tr');
+           trT.innerHTML = `
+             <td class="text-right"><b>TOTAL</b></td>
+             <td class="text-right"><b>${fmtMoney(totalSalary)}</b></td>
+             <td class="text-right"><b>${fmtMoney(totalAdvance)}</b></td>
+             <td class="text-right"><b>${fmtMoney(totalPaid)}</b></td>
+           `;
+            body.appendChild(trT);
+          })
+          .withFailureHandler(showGsError)
+          .getStaffMonthlyReport(year, month);
+        }
+
+        function printStaffMonthlyReport() {
+          const sel = document.getElementById('staffMonthSelect');
+          const label = sel && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : '';
+
+          const rows = [];
+          document.querySelectorAll('#staffMonthlyBody tr').forEach(tr => {
+            const tds = tr.querySelectorAll('td');
+            if (tds.length !== 4) return;
+            rows.push([
+              safeText(tds[0].textContent),
+              safeText(tds[1].textContent),
+              safeText(tds[2].textContent),
+              safeText(tds[3].textContent)
+            ]);
+          });
+
+          if (!rows.length) return alert('Run report first.');
+
+          const w = window.open('', '_blank');
+          const css = `
+            <style>
+              @media print { @page { size: A4; margin: 10mm; } }
+              body { font-family: Arial, sans-serif; font-size: 12px; margin: 0; }
+              h2 { margin: 0 0 6px 0; }
+              .muted { color:#666; margin:0 0 10px 0; }
+              table { width:100%; border-collapse: collapse; }
+              th, td { border-bottom: 1px solid #000; padding: 6px 4px; }
+              th { text-align:left; }
+              .r { text-align:right; }
+            </style>
+          `;
+
+          let tb = '<table><thead><tr><th>Staff (Ledger Handover To)</th><th class="r">Salary Paid</th><th class="r">Advance Paid</th><th class="r">Total Paid</th></tr></thead><tbody>';
+          rows.forEach(r => {
+            tb += `<tr><td>${escapeHtml(r[0])}</td><td class="r">${escapeHtml(r[1])}</td><td class="r">${escapeHtml(r[2])}</td><td class="r">${escapeHtml(r[3])}</td></tr>`;
+          });
+          tb += '</tbody></table>';
+
+          const head = `<h2>Staff Monthly Report</h2><div class="muted">Month: ${escapeHtml(label)}</div>`;
+          w.document.write('<html><head><title>Staff Monthly Report</title>' + css + '</head><body>' + head + tb + '</body></html>');
+          w.document.close();
+          w.focus();
+          w.print();
+        }
+
+      function printReport(kind) {
+        // kind: monthly|custom|detail|staff|att
+        const cls = 'print-' + kind;
+        document.body.classList.remove('print-monthly','print-custom','print-detail','print-staff','print-att');
+        document.body.classList.add(cls);
+
+        // Give DOM a tick so print CSS takes effect
+        setTimeout(() => {
+          window.print();
+          setTimeout(() => document.body.classList.remove(cls), 250);
+        }, 30);
+      }
+
+      // ==========================
+      // INVENTORY
+      // ==========================
+      function reloadChalanItems() {
+        // Fill-up button action: load last-qty map first, then load items.
+        google.script.run
+          .withSuccessHandler(mapRes => {
+            chalanLastQtyMap = (mapRes && mapRes.ok && mapRes.qtyByName) ? mapRes.qtyByName : {};
+
+            google.script.run
+              .withSuccessHandler(res => {
+                if (!res || !res.ok) {
+                  chalanItems = [];
+                  // IMPORTANT: do not render placeholder rows automatically.
+                  document.getElementById('chalBody').innerHTML = '';
+                  document.getElementById('chalGrandTotal').textContent = money(0);
+                  alert(res ? res.message : 'Failed to load Chalan_Items');
+                  return;
+                }
+
+                chalanItems = (res.items || []).map(x => {
+                  const key = safeText(x.purchaseName).trim();
+                  const last = (key && chalanLastQtyMap && chalanLastQtyMap[key] != null) ? Number(chalanLastQtyMap[key]) : 0;
+                  const qty = (Number.isFinite(last) && last >= 0) ? Math.floor(last) : 0;
+                  return { ...x, qty };
+                });
+
+                renderChalanItems();
+              })
+              .withFailureHandler(showGsError)
+              .invGetChalanItemsForUi();
+          })
+          .withFailureHandler(showGsError)
+          .invGetLastChalanQtyMapForUi();
+      }
+      function renderChalanItems() {
+        const tb = document.getElementById('chalBody');
+        tb.innerHTML = '';
+
+        // Requirement: before Fill-up, rows must be hidden. This function only runs after Fill-up.
+        if (!chalanItems.length) {
+          updateChalanTotal();
+          return;
+        }
+
+        chalanItems.forEach((it, idx) => {
+          const tr = document.createElement('tr');
+          const rateNum = Number(it.rate || 0);
+          const qtyNum = Number(it.qty || 0);
+          const lt = (Number.isFinite(rateNum) && Number.isFinite(qtyNum)) ? qtyNum * rateNum : 0;
+          const rateTxt = money(rateNum);
+
+          tr.innerHTML = `
+            <td class="text-center" style="color:#777">${it.sl}</td>
+            <td>${escapeHtml(it.purchaseName)}</td>
+            <td class="text-right">${rateTxt}</td>
+            <td class="text-center"><input type="number" min="0" step="1" value="${qtyNum}" onchange="onChalanQty(${idx}, this.value)" style="text-align:center;"></td>
+            <td class="text-right" id="chalLT_${idx}">${money(lt)}</td>
+          `;
+          tb.appendChild(tr);
+        });
+        updateChalanTotal();
+      }
+
+      function onChalanQty(idx, v) {
+        const n = Number(v);
+        if (!Number.isFinite(n) || n < 0 || Math.floor(n) !== n) {
+          alert('Quantity must be integer (0,1,2...).');
+          return;
+        }
+        chalanItems[idx].qty = n;
+        const lt = n * Number(chalanItems[idx].rate || 0);
+        document.getElementById('chalLT_' + idx).textContent = money(lt);
+        updateChalanTotal();
+      }
+
+      function updateChalanTotal() {
+        let total = 0;
+        chalanItems.forEach(it => {
+          const q = Number(it.qty || 0);
+          const r = Number(it.rate || 0);
+          if (q > 0 && Number.isFinite(r)) total += q * r;
+        });
+        document.getElementById('chalGrandTotal').textContent = money(total);
+      }
+
+      function resetChalanQty() {
+        chalanItems.forEach(it => it.qty = 0);
+        renderChalanItems();
+        document.getElementById('chalWhatsApp').value = '';
+      }
+
+      function submitChalan() {
+        if (!chalanItems.length) return alert('No items.');
+        const date = document.getElementById('chalDate').value;
+        if (!date) return alert('Date required.');
+
+        // Build payload (PLANNED only). allowOverride true so you can change the date if needed.
+        const payload = {
+          entryType: 'PLANNED',
+          reportDate: date,
+          allowOverride: true,
+          items: chalanItems.map(it => ({ purchaseName: it.purchaseName, rate: it.rate, qty: it.qty || 0 }))
+        };
+
+        const btn = document.getElementById('chalSubmitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+
+        google.script.run
+          .withSuccessHandler(res => {
+            btn.disabled = false;
+            btn.textContent = 'Submit';
+            if (res && res.ok) {
+              showStatus('CHALAN SAVED');
+              currentChalanHtml = res.chalanHtml; 
+        
+              // বাটন দেখানোর পাশাপাশি সরাসরি পপ-আপ ওপেন করা
+              document.getElementById('chalanPrintArea').style.display = 'block'; 
+        
+              // অটো পপ-আপ কল
+              printChalanDocument(); 
+            } else {
+              alert(res ? res.message : 'Failed');
+            }
+          })
+          .withFailureHandler(err => {
+            btn.disabled = false;
+            btn.textContent = 'Submit';
+            showGsError(err);
+          })
+          .invSubmitChalan(payload);
+      }
+
+      function printChalanDocument() {
+        if (!currentChalanHtml) return alert('কোনো চ্যালান ডেটা পাওয়া যায়নি।');
+        const win = window.open('', '_blank');
+        win.document.write(currentChalanHtml);
+        win.document.close();
+      }
+
+      function loadInvSlip() {
+        const d = document.getElementById('invSlipDate').value;
+        if (!d) return;
+
+        const body = document.getElementById('invSlipBody');
+        body.innerHTML = '<tr><td colspan="4" class="text-center muted">Loading...</td></tr>';
+
+       google.script.run
+        .withSuccessHandler(res => {
+          const rows = (res && res.rows) ? res.rows : [];
+          body.innerHTML = '';
+          if (!rows.length) {
+              body.innerHTML = '<tr><td colspan="4" class="text-center muted">No data.</td></tr>';
+              return;
+            }
+         rows.forEach(r => {
+          const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td>${escapeHtml(r.name)}</td>
+            <td class="text-center">${escapeHtml(r.IN)}</td>
+            <td class="text-center">${escapeHtml(r.OUT)}</td>
+            <td class="text-center">${escapeHtml(r.REMAIN)}</td>
+           `;
+            body.appendChild(tr);
+          });
+        })
+        .withFailureHandler(showGsError)
+        .invGetSlipForUi(d);
+      }
+
+      function printInvSlip() {
+        const d = document.getElementById('invSlipDate').value;
+        if (!d) return alert('Date required.');
+
+        // Use current table data for printing.
+        const rows = [];
+        document.querySelectorAll('#invSlipBody tr').forEach(tr => {
+          const tds = tr.querySelectorAll('td');
+          if (tds.length !== 4) return;
+          rows.push({
+            name: safeText(tds[0].textContent),
+            IN: safeText(tds[1].textContent),
+            OUT: safeText(tds[2].textContent),
+            REMAIN: safeText(tds[3].textContent)
+          });
+        });
+        if (!rows.length) return alert('No slip data. Generate first.');
+        // Dump slip snapshot to Return_log BEFORE printing ----
+        const reportDate = d; // input type="date" -> YYYY-MM-DD (stable)
+
+        // Build payload rows: item_name + remain_qty (REMAIN)
+        const payload = rows.map(r => ({
+          item_name: (r.name || '').toString().trim(),
+          remain_qty: Number(r.REMAIN || 0)
+        }));
+
+        // Keep the existing print logic inside a function so we can call it after dump succeeds.
+        const doPrint_ = () => {
+          const w = window.open('', '_blank');
+          const css = `
+            <style>
+              @media print { @page { size: 56mm auto; margin: 2mm; } }
+              body { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.25; margin: 0; padding: 0; }
+              .wrap { width: 56mm; }
+              .title { text-align: center; font-weight: bold; margin: 0 0 2mm 0; }
+              .date { text-align: center; margin: 0 0 2mm 0; }
+              table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+              th, td { padding: 1.2mm 0; border-bottom: 1px solid #000; vertical-align: top; }
+              th { text-align: left; font-size: 11px; }
+              td.c, th.c { text-align: center; font-weight:700; }
+              td.c { font-size: 14px; line-height: 1.15; }
+              th.c { font-size: 11px; }
+              td:first-child { word-break: break-word; }
+            </style>
+          `;
+
+          const head = `<h3 class="title">INVENTORY SLIP</h3><div class="date">DATE: ${escapeHtml(reportDate)}</div>`;
+
+          let tb = '<table><thead><tr><th>Name</th><th class="c">IN</th><th class="c">OUT</th><th class="c">REM</th></tr></thead><tbody>';
+          rows.forEach(r => {
+            tb += `<tr><td>${escapeHtml(r.name)}</td><td class="c">${escapeHtml(r.IN)}</td><td class="c">${escapeHtml(r.OUT)}</td><td class="c">${escapeHtml(r.REMAIN)}</td></tr>`;
+          });
+          tb += '</tbody></table>';
+
+          w.document.write('<html><head><title>Inventory Slip</title>' + css + '</head><body><div class="wrap">' + head + tb + '</div></body></html>');
+          w.document.close();
+          w.focus();
+          w.print();
+        };
+
+        // Call server: dump first, then print
+        const runner = google.script.run
+          .withSuccessHandler(res => {
+            if (!res || !res.status) {
+            return alert('Return_log: Unknown response. Print blocked.');
+          }
+          if (res.status === 'exists') {
+            return alert('Return_log: এই তারিখের data আগে থেকেই আছে. (Already exists) — Print blocked.');
+          }
+          if (res.status === 'missing_rate') {
+            const list = (res.missing_items || []).join(', ');
+            return alert('Return_log: Product list এ rate পাওয়া যায়নি:\n' + list + '\n\nPrint blocked.');
+          }
+          if (res.status !== 'ok') {
+            return alert('Return_log error: ' + (res.message || res.status) + '\nPrint blocked.');
+          }
+          doPrint_(); // ok -> print now
+        })
+        .withFailureHandler(err => {
+          alert('Return_log dump failed: ' + (err && err.message ? err.message : err) + '\nPrint blocked.');
+        });
+      runner.appendReturnLog(reportDate, payload);
+      return;
+
+        const w = window.open('', '_blank');
+        const css = `
+          <style>
+            @media print { @page { size: 56mm auto; margin: 2mm; } }
+            body { font-family: 'Courier New', monospace; font-size: 11px; line-height: 1.2; margin: 0; padding: 0; }
+            .wrap { width: 56mm; }
+            .title { text-align: center; font-weight: 900; margin: 0 0 2mm 0; }
+            .date { text-align: center; margin: 0 0 2mm 0; font-weight: 700; }
+
+            table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+            th, td { padding: 0.9mm 0.2mm; border-bottom: 1px solid #000; vertical-align: top; }
+
+            th { text-align: left; font-size: 10px; font-weight: 700; }
+            td { text-align: left; font-size: 10px; }
+
+            td.c, th.c { text-align: center; }
+            td.c { font-size: 16px !important; line-height: 1.05; font-weight: 900; white-space: nowrap; }
+            th.c { font-size: 11px !important; font-weight: 900; white-space: nowrap; }
+
+            td:first-child { word-break: break-word; font-size: 10px; }
+          </style>
+        `;
+
+        const head = `<h3 class="title">INVENTORY SLIP</h3><div class="date">DATE: ${escapeHtml(d)}</div>`;
+
+        let tb =
+        '<table><colgroup>' +
+          '<col style="width:46%">' +
+          '<col style="width:18%">' +
+          '<col style="width:18%">' +
+          '<col style="width:18%">' +
+        '</colgroup><thead><tr>' +
+          '<th>Name</th><th class="c">IN</th><th class="c">OUT</th><th class="c">REM</th>' +
+        '</tr></thead><tbody>';
+
+        rows.forEach(r => {
+          tb += `<tr><td>${escapeHtml(r.name)}</td>` +
+          `<td class="c">${escapeHtml(r.IN)}</td>` +
+          `<td class="c">${escapeHtml(r.OUT)}</td>` +
+          `<td class="c">${escapeHtml(r.REMAIN)}</td></tr>`;
+        });
+        tb += '</tbody></table>';
+
+        w.document.write('<html><head><title>Inventory Slip</title>' + css + '</head><body><div class="wrap">' + head + tb + '</div></body></html>');
+        w.document.close();
+        w.focus();
+        w.print();
+      }
+
+      function runInvRangeReport() {
+        const s = document.getElementById('invStart').value;
+        const e = document.getElementById('invEnd').value;
+        if (!s || !e) return alert('Select START and END.');
+
+        const body = document.getElementById('invRangeBody');
+        body.innerHTML = '<tr><td colspan="4" class="text-center muted">Loading...</td></tr>';
+
+        google.script.run
+          .withSuccessHandler(res => {
+            if (!res || !res.ok) {
+              body.innerHTML = '<tr><td colspan="4" class="text-center muted">Failed</td></tr>';
+              alert(res ? res.message : 'Failed');
+              return;
+            }
+
+            document.getElementById('kpiInvIn').textContent = res.totals.inQty;
+            document.getElementById('kpiInvOut').textContent = res.totals.outQty;
+            document.getElementById('kpiInvRem').textContent = res.totals.remainQty;
+
+            // days count (inclusive)
+            const ds = new Date(s+'T00:00:00');
+            const de = new Date(e+'T00:00:00');
+            const days = (isNaN(ds)||isNaN(de)) ? 0 : Math.floor((de-ds)/(24*3600*1000)) + 1;
+            document.getElementById('kpiInvDays').textContent = String(Math.max(0, days));
+
+            body.innerHTML = '';
+            (res.rows || []).forEach(r => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td>${escapeHtml(r.name)}</td>
+                <td class="text-center">${escapeHtml(r.inQty)}</td>
+                <td class="text-center">${escapeHtml(r.outQty)}</td>
+                <td class="text-center">${escapeHtml(r.remainQty)}</td>
+              `;
+              body.appendChild(tr);
+            });
+            if (!(res.rows || []).length) {
+              body.innerHTML = '<tr><td colspan="4" class="text-center muted">No data.</td></tr>';
+            }
+          })
+          .withFailureHandler(showGsError)
+          .invGetRangeReportForUi(s, e);
+      }
+
+      function printInvRangeReport() {
+        const s = document.getElementById('invStart').value;
+        const e = document.getElementById('invEnd').value;
+        if (!s || !e) return alert('Select START and END.');
+
+        // Build from current DOM
+        const rows = [];
+        document.querySelectorAll('#invRangeBody tr').forEach(tr => {
+          const tds = tr.querySelectorAll('td');
+          if (tds.length !== 4) return;
+          rows.push({ name: safeText(tds[0].textContent), IN: safeText(tds[1].textContent), OUT: safeText(tds[2].textContent), RET: safeText(tds[3].textContent) });
+        });
+        if (!rows.length) return alert('Run report first.');
+
+        const w = window.open('', '_blank');
+        const css = `
+          <style>
+            body { font-family: 'Courier New', monospace; color: #000; }
+            h2 { text-align:center; margin: 0 0 8px 0; }
+            .sub { text-align:center; margin: 0 0 12px 0; }
+            table { width:100%; border-collapse: collapse; }
+            th, td { border:1px solid #000; padding:6px; }
+            th { background:#eee; }
+            td.c, th.c { text-align:center; }
+          </style>
+        `;
+        let tb = '<table><thead><tr><th>Name</th><th class="c">IN</th><th class="c">OUT</th><th class="c">RETURN</th></tr></thead><tbody>';
+        rows.forEach(r => {
+          tb += `<tr><td>${escapeHtml(r.name)}</td><td class="c">${escapeHtml(r.IN)}</td><td class="c">${escapeHtml(r.OUT)}</td><td class="c">${escapeHtml(r.RET)}</td></tr>`;
+        });
+        tb += '</tbody></table>';
+
+        w.document.write('<html><head><title>Inventory Range Report</title>' + css + '</head><body><h2>INVENTORY REPORT</h2><div class="sub">'+escapeHtml(s)+' to '+escapeHtml(e)+'</div>' + tb + '</body></html>');
+        w.document.close();
+        w.focus();
+        w.print();
+      }
+
+    </script>
+  </body>
+</html>
